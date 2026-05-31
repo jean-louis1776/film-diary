@@ -1,0 +1,76 @@
+@use '../../styles/variables' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg;
+  color: $color-white;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.header {
+  padding: 32px $space-lg 24px;
+  border-bottom: 1px solid $color-border;
+  position: sticky;
+  top: 0;
+  background: $color-bg;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @include mobile {
+    padding: 20px;
+  }
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.backBtn {
+  @include mono(12px, 0.1em);
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.title {
+  @include display(clamp(18px, 3vw, 24px));
+  color: $color-white;
+  margin: 0;
+}
+
+.meta {
+  @include mono(10px, 0.15em);
+  color: var(--accent);
+  margin: 2px 0 0;
+}
+
+// ── Gallery grid ────────────────────────────────────────────────────────────
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  padding: 40px $space-lg;
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 20px;
+  }
+}

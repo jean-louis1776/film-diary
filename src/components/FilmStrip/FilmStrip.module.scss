@@ -1,0 +1,29 @@
+@use '../../styles/variables' as *;
+
+.strip {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  opacity: 0.3;
+}
+
+.frame {
+  position: relative;
+  width: 20px;
+  height: 14px;
+  border: 1px solid; // color set via inline style (dynamic accent)
+  border-radius: 1px;
+}
+
+.hole {
+  position: absolute;
+  width: 4px;
+  height: 3px;
+  border-radius: 0.5px;
+
+  // Sprocket positions via data attribute
+  &[data-pos='tl'] { top: -4px;    left:  2px; }
+  &[data-pos='tr'] { top: -4px;    right: 2px; }
+  &[data-pos='bl'] { bottom: -4px; left:  2px; }
+  &[data-pos='br'] { bottom: -4px; right: 2px; }
+}

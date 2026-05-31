@@ -1,0 +1,103 @@
+@use '../../styles/variables' as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.close {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    color: $color-white;
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 90vw;
+  max-height: 90vh;
+  align-items: center;
+}
+
+.imageWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton {
+  width: min(800px, 80vw);
+  height: min(600px, 60vh);
+  border-radius: 2px;
+  @include shimmer-bg;
+}
+
+.image {
+  max-width: min(800px, 80vw);
+  max-height: 75vh;
+  object-fit: contain;
+  border-radius: 2px;
+  animation: fadeInScale 0.3s ease;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: min(400px, 80vw);
+}
+
+.navBtn {
+  width: 48px;
+  height: 48px;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: 1px;
+  color: var(--accent);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-color: var(--accent);
+  }
+
+  @include mobile {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+.counter {
+  @include mono(11px, 0.15em);
+  color: rgba(255, 255, 255, 0.4);
+}

@@ -1,0 +1,25 @@
+@use '../../styles/variables' as *;
+
+.skeleton {
+  border-radius: 2px;
+  overflow: hidden;
+  background: #1a1a1a;
+  position: relative;
+
+  // Lightbox variant — fixed dimensions
+  &--lightbox {
+    width: min(800px, 80vw);
+    height: min(600px, 60vh);
+    border-radius: 2px;
+  }
+}
+
+.shimmer {
+  padding-bottom: 75%; // 4:3 aspect ratio for gallery cards
+  @include shimmer-bg;
+
+  .skeleton--lightbox & {
+    padding-bottom: 0;
+    height: 100%;
+  }
+}

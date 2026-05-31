@@ -1,0 +1,49 @@
+@use '../../styles/variables' as *;
+
+.card {
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transform: translateY(0) scale(1);
+  transition:
+    transform     0.35s $ease-spring,
+    box-shadow    0.35s ease;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.6),
+      0 8px  20px rgba(0, 0, 0, 0.4);
+
+    .overlay {
+      opacity: 1;
+    }
+  }
+}
+
+.image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.65));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.frameNumber {
+  @include mono(10px, 0.1em);
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}

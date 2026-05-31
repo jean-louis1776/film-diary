@@ -1,0 +1,117 @@
+@use '../../styles/variables' as *;
+
+// Reset <a> so Link doesn't inherit browser link styles
+.link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+
+  &:focus-visible .card {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline-offset: 2px;
+  }
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--accent-faint);
+  border-radius: 2px;
+  padding: 32px 28px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+
+  animation: slideUp 0.5s ease both;
+  animation-delay: var(--animation-delay);
+
+  transition:
+    transform      0.4s $ease-spring,
+    box-shadow     0.4s ease,
+    border-color   0.3s ease;
+
+  &:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: var(--accent-hover);
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.6),
+      0  8px 24px var(--accent-faint);
+
+    .cta {
+      color: var(--accent);
+    }
+  }
+}
+
+// Radial glow in top-right corner
+.glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(
+    circle at top right,
+    var(--accent-glow),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.tag {
+  @include mono(9px, 0.2em);
+  display: block;
+  color: var(--accent);
+  opacity: 0.8;
+  margin-bottom: 16px;
+}
+
+.name {
+  @include display(clamp(16px, 2vw, 20px));
+  color: $color-white;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+
+.description {
+  @include italic-body(14px);
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 8%, transparent);
+  padding-top: 20px;
+}
+
+.frameCount {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.frameNumber {
+  @include mono(22px, 0);
+  font-weight: 300;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.frameLabel {
+  @include mono(9px, 0.15em);
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.cta {
+  @include mono(10px, 0.1em);
+  color: rgba(255, 255, 255, 0.2);
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
