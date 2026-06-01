@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { FILM_CATEGORIES, generateMockPhotos } from '../../data/films'
-import type { FilmCategory } from '../../types'
+import { FILM_CATEGORIES, getPhotosForFilm } from '@/data/films.ts'
+import type { FilmCategory } from '@/types'
+
 import { FilmStrip } from '../FilmStrip'
 import { Lightbox } from '../Lightbox'
 import { PhotoCard } from '../PhotoCard'
@@ -26,7 +27,7 @@ export function GalleryView() {
 function GalleryContent({ film }: { film: FilmCategory }) {
   const navigate = useNavigate()
 
-  const photos = useMemo(() => generateMockPhotos(film.id, film.count), [film.id, film.count])
+  const photos = useMemo(() => getPhotosForFilm(film.id), [film.id])
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 

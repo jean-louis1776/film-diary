@@ -2,12 +2,11 @@ export interface FilmCategory {
   id: string
   name: string
   iso: string
-  shots: number
   description: string
   accent: string
   bg: string
   tag: string
-  count: number
+  count?: number
 }
 
 export interface Photo {
