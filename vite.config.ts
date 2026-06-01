@@ -1,18 +1,20 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { fileURLToPath, URL } from 'node:url'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [react()],
 
-  // Required for SPA routing: any unknown path falls back to index.html
-  // so react-router handles it client-side
-  server: {
-    historyApiFallback: true,
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
 
   css: {
     modules: {
+      // kebab-case → camelCase in TS: .film-grid → styles.filmGrid
       localsConvention: 'camelCaseOnly',
     },
   },
-});
+})

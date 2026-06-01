@@ -1,1 +1,1 @@
-export { FilmStrip } from './FilmStrip';
+export { FilmStrip } from './FilmStrip'

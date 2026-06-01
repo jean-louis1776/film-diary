@@ -1,33 +1,158 @@
 @use '../../styles/variables' as *;
 
+// ── Max-width wrapper ─────────────────────────────────────────────────────────
 .page {
   min-height: 100vh;
   background: $color-bg;
   color: $color-white;
+  transition: background 0.35s ease, color 0.35s ease;
 }
 
-// ── Hero ────────────────────────────────────────────────────────────────────
+.inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// ── Hero ─────────────────────────────────────────────────────────────────────
 .hero {
-  padding: $space-xl $space-lg 48px;
+  position: relative;
+  padding: 48px $space-lg 52px;
   border-bottom: 1px solid $color-border-soft;
   animation: fadeIn 0.6s ease;
+  max-width: 1440px;
+  margin: 0 auto;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    border-radius: 999px;
+    filter: blur(80px);
+  }
+
+  &::before {
+    top: -80px;
+    right: -40px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--hero-glow-a), transparent 65%);
+  }
+
+  &::after {
+    left: 15%;
+    bottom: -150px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, var(--hero-glow-b), transparent 70%);
+  }
 
   @include mobile {
-    padding: 40px 20px 32px;
+    padding: 32px 20px 40px;
+  }
+}
+
+// ── Top bar ───────────────────────────────────────────────────────────────────
+.heroTop {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 48px;
+
+  @include mobile {
+    margin-bottom: 32px;
   }
 }
 
 .eyebrow {
   @include mono(10px, 0.3em);
-  color: rgba(255, 255, 255, 0.25);
-  margin-bottom: 20px;
+  color: var(--color-text-faint);
+}
+
+// ── Theme toggle ──────────────────────────────────────────────────────────────
+.themeToggle {
+  @include mono(10px, 0.16em);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 14px 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  box-shadow: 0 4px 20px var(--color-shadow);
+  transition:
+    color 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s $ease-spring;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-text);
+    background: var(--color-surface-strong);
+    border-color: var(--color-text-faint);
+    transform: translateY(-1px);
+  }
+
+  // Hide label on narrow screens, show icon only
+  @media (max-width: 720px) {
+    padding: 8px 10px;
+
+    .toggleLabel {
+      display: none;
+    }
+  }
+}
+
+.toggleIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background:
+    radial-gradient(circle at 35% 35%, var(--color-text) 0 22%, transparent 24%),
+    linear-gradient(135deg, var(--color-text-faint) 0%, var(--color-text) 100%);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.toggleLabel {
+  // inherits display from parent breakpoint rule
+}
+
+// ── Identity row ──────────────────────────────────────────────────────────────
+// Desktop: title+subtitle+stats left, big avatar right
+// Mobile: stacked naturally, avatar below title area
+.identity {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(40px, 7vw, 100px);
+
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+}
+
+.identityText {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .title {
-  @include display(clamp(36px, 6vw, 64px));
-  margin: 0 0 12px;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  @include display(clamp(44px, 6vw, 76px));
+  margin: 0 0 18px;
+  line-height: 1.0;
+  letter-spacing: -0.025em;
 
   em {
     font-style: italic;
@@ -35,18 +160,18 @@
 }
 
 .subtitle {
-  @include italic-body(clamp(14px, 2vw, 17px));
-  color: rgba(255, 255, 255, 0.4);
-  max-width: 420px;
-  line-height: 1.7;
+  @include italic-body(clamp(14px, 1.6vw, 17px));
+  color: var(--color-text-muted);
+  max-width: 380px;
+  line-height: 1.75;
   margin: 0;
 }
 
-// ── Stats ────────────────────────────────────────────────────────────────────
+// ── Stats ─────────────────────────────────────────────────────────────────────
 .stats {
-  margin-top: 32px;
+  margin-top: 36px;
   display: flex;
-  gap: 32px;
+  gap: 36px;
   flex-wrap: wrap;
 }
 
@@ -57,23 +182,88 @@
 }
 
 .statValue {
-  @include display(28px);
-  color: rgba(255, 255, 255, 0.9);
+  @include display(30px);
+  color: var(--color-text-soft);
   line-height: 1;
 }
 
 .statLabel {
   @include mono(9px, 0.2em);
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-faint);
 }
 
-// ── Section label ────────────────────────────────────────────────────────────
+// ── Avatar ────────────────────────────────────────────────────────────────────
+.avatarWrap {
+  flex: 0 0 auto;
+  // Desktop: big and prominent
+  width: clamp(160px, 22vw, 260px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 5px;
+  position: relative;
+
+  // Conic ring border trick
+  background:
+    linear-gradient($color-bg, $color-bg) padding-box,
+    conic-gradient(
+      from 140deg,
+      var(--avatar-ring),
+      var(--color-text-faint) 40%,
+      transparent 60%,
+      var(--avatar-ring)
+    ) border-box;
+  border: 1.5px solid transparent;
+  box-shadow: 0 28px 80px var(--avatar-shadow);
+
+  // Inner highlight
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+  }
+
+  html[data-theme='light'] & {
+    background:
+      linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+      conic-gradient(
+        from 140deg,
+        var(--avatar-ring),
+        rgba(80, 50, 20, 0.35) 40%,
+        transparent 60%,
+        var(--avatar-ring)
+      ) border-box;
+  }
+
+  // Mobile: smaller, centered below text block
+  @include mobile {
+    width: clamp(120px, 42vw, 172px);
+    align-self: center;
+    margin-top: 32px;
+  }
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  object-position: center top;
+  filter: saturate(0.75) contrast(1.1);
+}
+
+// ── Section label ─────────────────────────────────────────────────────────────
 .sectionLabel {
+  max-width: 1440px;
+  margin: 0 auto;
   padding: 48px $space-lg 24px;
 
   span {
     @include mono(9px, 0.25em);
-    color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-faint);
   }
 
   @include mobile {
@@ -81,12 +271,18 @@
   }
 }
 
-// ── Film grid ────────────────────────────────────────────────────────────────
+// ── Film grid ─────────────────────────────────────────────────────────────────
 .grid {
+  max-width: 1440px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
   padding: 0 $space-lg 60px;
+
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   @include mobile {
     grid-template-columns: 1fr;
@@ -96,6 +292,8 @@
 
 // ── Footer ────────────────────────────────────────────────────────────────────
 .footer {
+  max-width: 1440px;
+  margin: 0 auto;
   border-top: 1px solid $color-border-soft;
   padding: 24px $space-lg;
   display: flex;
@@ -111,10 +309,10 @@
 
 .copyright {
   @include mono(9px, 0.2em);
-  color: rgba(255, 255, 255, 0.15);
+  color: var(--color-text-faint);
 }
 
 .tagline {
   @include italic-body(13px);
-  color: rgba(255, 255, 255, 0.15);
+  color: var(--color-text-faint);
 }

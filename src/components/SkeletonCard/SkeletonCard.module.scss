@@ -3,7 +3,7 @@
 .skeleton {
   border-radius: 2px;
   overflow: hidden;
-  background: #1a1a1a;
+  background: var(--color-skeleton-from);
   position: relative;
 
   // Lightbox variant — fixed dimensions

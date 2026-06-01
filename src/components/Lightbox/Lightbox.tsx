@@ -1,58 +1,59 @@
-import { useEffect, useState } from 'react';
-import type { Photo } from '../../types';
-import { useKeyboard } from '../../hooks/useKeyboard';
-import styles from './Lightbox.module.scss';
+import { useEffect, useState } from 'react'
+
+import { useKeyboard } from '../../hooks/useKeyboard'
+import type { Photo } from '../../types'
+
+import styles from './Lightbox.module.scss'
 
 interface LightboxProps {
-  photos: Photo[];
-  currentIndex: number;
-  accent: string;
-  onClose: () => void;
-  onNext: () => void;
-  onPrev: () => void;
+  photos: Photo[]
+  currentIndex: number
+  accent: string
+  onClose: () => void
+  onNext: () => void
+  onPrev: () => void
 }
 
-export function Lightbox({
-  photos,
-  currentIndex,
-  accent,
-  onClose,
-  onNext,
-  onPrev,
-}: LightboxProps) {
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const photo = photos[currentIndex];
-
-  // Reset loaded state on photo change
-  useEffect(() => {
-    setImgLoaded(false);
-  }, [currentIndex]);
+export function Lightbox({ photos, currentIndex, accent, onClose, onNext, onPrev }: LightboxProps) {
+  const [loadedPhotoUrl, setLoadedPhotoUrl] = useState<string | null>(null)
+  const photo = photos[currentIndex]
+  const imgLoaded = loadedPhotoUrl === photo.url
 
   // Keyboard navigation
   useKeyboard({
     ArrowRight: onNext,
-    ArrowLeft:  onPrev,
-    Escape:     onClose,
-  });
+    ArrowLeft: onPrev,
+    Escape: onClose,
+  })
 
   // Prevent body scroll while open
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [])
 
-  const cssVars = { '--accent': accent } as React.CSSProperties;
+  const cssVars = { '--accent': accent } as React.CSSProperties
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      onClose()
+    }
+  }
 
   return (
     <div
       className={styles.backdrop}
-      onClick={onClose}
+      onClick={handleBackdropClick}
+      onKeyDown={(event) => event.key === 'Escape' && onClose()}
       role="dialog"
       aria-modal="true"
       aria-label="Photo viewer"
+      tabIndex={-1}
     >
       {/* Close button */}
       <button
+        type="button"
         className={styles.close}
         onClick={onClose}
         aria-label="Close viewer"
@@ -61,28 +62,24 @@ export function Lightbox({
         ×
       </button>
 
-      <div
-        className={styles.inner}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className={styles.inner}>
         {/* Image area */}
         <div className={styles.imageWrap}>
-          {!imgLoaded && (
-            <div className={styles.skeleton} />
-          )}
+          {!imgLoaded && <div className={styles.skeleton} />}
           <img
             key={photo.url}
             src={photo.url}
             alt={`Frame ${photo.frame}`}
             className={styles.image}
             style={{ display: imgLoaded ? 'block' : 'none' }}
-            onLoad={() => setImgLoaded(true)}
+            onLoad={() => setLoadedPhotoUrl(photo.url)}
           />
         </div>
 
         {/* Controls bar */}
         <div className={styles.controls} style={cssVars}>
           <button
+            type="button"
             className={styles.navBtn}
             onClick={onPrev}
             aria-label="Previous photo"
@@ -96,6 +93,7 @@ export function Lightbox({
           </span>
 
           <button
+            type="button"
             className={styles.navBtn}
             onClick={onNext}
             aria-label="Next photo"
@@ -106,5 +104,5 @@ export function Lightbox({
         </div>
       </div>
     </div>
-  );
+  )
 }

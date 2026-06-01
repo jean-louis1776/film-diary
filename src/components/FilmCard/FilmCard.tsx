@@ -1,32 +1,30 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import type { FilmCategory } from '@/types';
-import styles from './FilmCard.module.scss';
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+
+import type { FilmCategory } from '@/types'
+
+import styles from './FilmCard.module.scss'
 
 interface FilmCardProps {
-  film: FilmCategory;
-  index: number;
+  film: FilmCategory
+  index: number
 }
 
 export function FilmCard({ film, index }: FilmCardProps) {
-  const [hovered, setHovered] = useState(false);
+  const [hovered, setHovered] = useState(false)
 
   const cssVars = {
-    '--accent':          film.accent,
-    '--accent-faint':    `${film.accent}22`,
-    '--accent-hover':    `${film.accent}55`,
-    '--accent-glow':     `${film.accent}12`,
-    '--card-bg':         film.bg,
+    '--accent': film.accent,
+    '--accent-faint': `${film.accent}22`,
+    '--accent-hover': `${film.accent}55`,
+    '--accent-glow': `${film.accent}12`,
+    '--card-bg': film.bg,
     '--animation-delay': `${index * 80}ms`,
-  } as React.CSSProperties;
+  } as React.CSSProperties
 
   return (
     // Link renders a native <a> — correct semantics + right-click / open in new tab works
-    <Link
-      to={`/film/${film.id}`}
-      className={styles.link}
-      aria-label={`Open ${film.name} gallery`}
-    >
+    <Link to={`/film/${film.id}`} className={styles.link} aria-label={`Open ${film.name} gallery`}>
       <article
         className={styles.card}
         style={cssVars}
@@ -44,9 +42,7 @@ export function FilmCard({ film, index }: FilmCardProps) {
 
         <footer className={styles.footer}>
           <div className={styles.frameCount}>
-            <span className={styles.frameNumber}>
-              {String(film.count).padStart(2, '0')}
-            </span>
+            <span className={styles.frameNumber}>{String(film.count).padStart(2, '0')}</span>
             <span className={styles.frameLabel}>FRAMES</span>
           </div>
 
@@ -56,5 +52,5 @@ export function FilmCard({ film, index }: FilmCardProps) {
         </footer>
       </article>
     </Link>
-  );
+  )
 }

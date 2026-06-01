@@ -1,6 +1,5 @@
 @use '../../styles/variables' as *;
 
-// Reset <a> so Link doesn't inherit browser link styles
 .link {
   display: block;
   text-decoration: none;
@@ -8,20 +7,29 @@
   outline: none;
 
   &:focus-visible .card {
-    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline: 2px solid var(--color-text-muted);
     outline-offset: 2px;
   }
 }
 
 .card {
-  background: var(--card-bg);
   border: 1px solid var(--accent-faint);
   border-radius: 2px;
-  padding: 32px 28px;
+  padding: 28px 24px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   outline: none;
+
+  // ── Background: dark mode keeps film-specific dark bg
+  //    light mode uses warm cream tinted with accent
+  background: var(--card-bg);
+
+  // Override in light theme via :global on html[data-theme]
+  html[data-theme='light'] & {
+    background: color-mix(in srgb, var(--accent) 22%, #f5ede0);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
 
   animation: slideUp 0.5s ease both;
   animation-delay: var(--animation-delay);
@@ -35,58 +43,83 @@
     transform: translateY(-10px) scale(1.02);
     border-color: var(--accent-hover);
     box-shadow:
-      0 24px 60px rgba(0, 0, 0, 0.6),
+      0 24px 60px var(--color-shadow),
       0  8px 24px var(--accent-faint);
 
     .cta {
       color: var(--accent);
     }
+
+    .glow {
+      opacity: 1;
+    }
   }
 }
 
-// Radial glow in top-right corner
 .glow {
   position: absolute;
   top: 0;
   right: 0;
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   background: radial-gradient(
     circle at top right,
     var(--accent-glow),
     transparent 70%
   );
   pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.35s ease;
+
+  html[data-theme='light'] & {
+    opacity: 0.9;
+  }
 }
 
 .tag {
   @include mono(9px, 0.2em);
   display: block;
   color: var(--accent);
-  opacity: 0.8;
-  margin-bottom: 16px;
+  opacity: 0.85;
+  margin-bottom: 14px;
+
+  html[data-theme='light'] & {
+    opacity: 1;
+  }
 }
 
 .name {
-  @include display(clamp(16px, 2vw, 20px));
-  color: $color-white;
+  @include display(clamp(15px, 1.8vw, 19px));
+  color: var(--color-text);
   margin: 0 0 6px;
   line-height: 1.2;
+
+  html[data-theme='light'] & {
+    color: color-mix(in srgb, var(--accent) 40%, #1c1108);
+  }
 }
 
 .description {
-  @include italic-body(14px);
-  color: rgba(255, 255, 255, 0.45);
-  margin: 0 0 24px;
-  line-height: 1.5;
+  @include italic-body(13px);
+  color: var(--color-text-muted);
+  margin: 0 0 22px;
+  line-height: 1.55;
+
+  html[data-theme='light'] & {
+    color: color-mix(in srgb, var(--accent) 20%, rgba(28, 17, 8, 0.8));
+  }
 }
 
 .footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid color-mix(in srgb, var(--accent) 8%, transparent);
-  padding-top: 20px;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
+  padding-top: 18px;
+
+  html[data-theme='light'] & {
+    border-top-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
 }
 
 .frameCount {
@@ -96,7 +129,7 @@
 }
 
 .frameNumber {
-  @include mono(22px, 0);
+  @include mono(20px, 0);
   font-weight: 300;
   color: var(--accent);
   line-height: 1;
@@ -104,14 +137,18 @@
 
 .frameLabel {
   @include mono(9px, 0.15em);
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--color-text-faint);
 }
 
 .cta {
   @include mono(10px, 0.1em);
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-faint);
   transition: color 0.3s ease;
   display: flex;
   align-items: center;
   gap: 6px;
+
+  html[data-theme='light'] & {
+    color: color-mix(in srgb, var(--accent) 30%, rgba(28, 17, 8, 0.5));
+  }
 }

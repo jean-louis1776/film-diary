@@ -8,7 +8,7 @@
 
 // ── Header ──────────────────────────────────────────────────────────────────
 .header {
-  padding: 32px $space-lg 24px;
+  padding: 28px $space-lg 22px;
   border-bottom: 1px solid $color-border;
   position: sticky;
   top: 0;
@@ -19,9 +19,39 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
+  max-width: 1440px;
+  margin: 0 auto;
+  // sticky needs to be on the element itself, not inside max-width wrapper
+  // so we use a pseudo-full-width trick:
+  width: 100%;
 
   @include mobile {
-    padding: 20px;
+    padding: 18px 20px;
+  }
+}
+
+// Sticky header needs full-width bg coverage, not just max-width
+.pageHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $color-bg;
+  border-bottom: 1px solid $color-border;
+  transition: background 0.35s ease;
+}
+
+.headerInner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px $space-lg 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @include mobile {
+    padding: 18px 20px;
   }
 }
 
@@ -33,25 +63,25 @@
 
 .backBtn {
   @include mono(12px, 0.1em);
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--color-text-muted);
   padding: 0;
   transition: color 0.2s ease;
 
   &:hover {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text);
   }
 }
 
 .divider {
   width: 1px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border);
   flex-shrink: 0;
 }
 
 .title {
   @include display(clamp(18px, 3vw, 24px));
-  color: $color-white;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -67,6 +97,8 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
   padding: 40px $space-lg;
+  max-width: 1440px;
+  margin: 0 auto;
 
   @include mobile {
     grid-template-columns: repeat(2, 1fr);
