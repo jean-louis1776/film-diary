@@ -6,6 +6,7 @@
   background: $color-bg;
   color: $color-white;
   transition: background 0.35s ease, color 0.35s ease;
+  user-select: none;
 }
 
 .inner {
