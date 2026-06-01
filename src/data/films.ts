@@ -72,8 +72,8 @@ export function generateMockPhotos(filmId: string, count: number) {
 
   return Array.from({ length: count }, (_, i) => ({
     id: `${filmId}-${i}`,
-    url: `https://picsum.photos/seed/${filmId}${i + 1}/800/600`,
-    thumb: `https://picsum.photos/seed/${filmId}${i + 1}/400/300`,
+    url: `https://picsum.photos/seed/${filmId}${i + 1}/1200/900`,
+    thumb: `https://picsum.photos/seed/${filmId}${i + 1}/600/450`,
     width: i % 3 === 0 ? 800 : 600,
     height: i % 3 === 0 ? 600 : 800,
     frame: String(i + 1).padStart(2, '0'),
