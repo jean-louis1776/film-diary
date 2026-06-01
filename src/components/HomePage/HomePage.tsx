@@ -12,7 +12,7 @@ const STATS = [
     label: 'FRAMES',
     value: FILM_CATEGORIES.reduce((sum, film) => sum + getPhotosForFilm(film.id).length, 0),
   },
-  { label: 'YEAR', value: '2026' },
+  { label: 'CAMERA', value: 'Minolta Hi-Matic AF2' },
 ] as const
 
 interface HomePageProps {
