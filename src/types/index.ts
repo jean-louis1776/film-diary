@@ -1,3 +1,9 @@
+export interface Camera {
+  id: string
+  name: string
+  shortName: string
+}
+
 export interface FilmCategory {
   id: string
   name: string
@@ -7,6 +13,7 @@ export interface FilmCategory {
   bg: string
   tag: string
   frameCount: number
+  camera: string // camera folder id, e.g. 'minolta-af2'
 }
 
 export interface Photo {

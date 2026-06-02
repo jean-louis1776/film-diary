@@ -23,7 +23,11 @@ export function FilmCard({ film, index }: FilmCardProps) {
   } as CSSProperties
 
   return (
-    <Link to={`/film/${film.id}`} className={styles.link} aria-label={`Open ${film.name} gallery`}>
+    <Link
+      to={`/film/${film.camera}/${film.id}`}
+      className={styles.link}
+      aria-label={`Open ${film.name} gallery`}
+    >
       <article
         className={styles.card}
         style={cssVars}
