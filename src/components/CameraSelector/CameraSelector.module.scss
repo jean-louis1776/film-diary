@@ -1,0 +1,142 @@
+@use '../../styles/variables' as *;
+
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+// ── Trigger ───────────────────────────────────────────────────────────────────
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.7);
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s $ease-spring;
+
+  &:hover,
+  &:focus-visible {
+    color: #ffffff;
+    background: var(--color-surface-strong);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    outline: none;
+  }
+}
+
+.triggerOpen {
+  color: #ffffff;
+  background: var(--color-surface-strong);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.label {
+  @include mono(9px, 0.18em);
+  white-space: nowrap;
+}
+
+.chevron {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.icon,
+.chevron {
+  color: var(--color-text);
+}
+
+// ── Dropdown ──────────────────────────────────────────────────────────────────
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 100;
+  min-width: 220px;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: dropIn 0.18s $ease-spring;
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);     }
+  }
+}
+
+// ── Option ────────────────────────────────────────────────────────────────────
+.option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--color-text-soft);
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-strong);
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: none;
+    background: var(--color-surface-strong);
+    color: var(--color-text);
+  }
+}
+
+.optionActive {
+  color: var(--color-text) !important;
+  background: var(--color-surface);
+}
+
+.optionDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--dot-color);
+  transition: background 0.2s ease;
+}
+
+.optionName {
+  font-family: $font-mono;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.check {
+  width: 10px;
+  height: 10px;
+  color: var(--color-text);
+  flex-shrink: 0;
+}

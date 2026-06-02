@@ -14,8 +14,8 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage theme={theme} onToggleTheme={toggleTheme} />} />
-        <Route path="/film/:filmId" element={<GalleryView />} />
-        {/* Fallback — redirect unknown paths to home */}
+        {/* Route includes both cameraId and filmId so URLs are unambiguous */}
+        <Route path="/film/:cameraId/:filmId" element={<GalleryView />} />
         <Route path="*" element={<HomePage theme={theme} onToggleTheme={toggleTheme} />} />
       </Routes>
     </BrowserRouter>

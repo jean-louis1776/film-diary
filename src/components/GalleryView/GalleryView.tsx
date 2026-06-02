@@ -1,7 +1,8 @@
 import { type CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import { FILM_CATEGORIES, getPhotosForFilm } from '@/data/films.ts'
+import { getPhotosForFilm } from '@/data/films.ts'
+import { useFilmCategories } from '@/hooks/useFilmCategories'
 import type { FilmCategory } from '@/types'
 
 import { FilmStrip } from '../FilmStrip'
@@ -11,10 +12,14 @@ import { PhotoCard } from '../PhotoCard'
 import styles from './GalleryView.module.scss'
 
 export function GalleryView() {
-  const { filmId } = useParams<{ filmId: string }>()
+  const { filmId, cameraId } = useParams<{ filmId: string; cameraId: string }>()
   const navigate = useNavigate()
+  const { films, state } = useFilmCategories()
 
-  const film = FILM_CATEGORIES.find((f) => f.id === filmId)
+  // Wait for films to load before deciding to redirect
+  if (state === 'refreshing') return null
+
+  const film = films.find((f) => f.id === filmId && f.camera === cameraId)
 
   if (!film) {
     navigate('/', { replace: true })
@@ -28,8 +33,8 @@ function GalleryContent({ film }: { film: FilmCategory }) {
   const navigate = useNavigate()
 
   const photos = useMemo(
-    () => getPhotosForFilm(film.id, film.frameCount),
-    [film.id, film.frameCount]
+    () => getPhotosForFilm(film.id, film.frameCount, film.camera),
+    [film.id, film.frameCount, film.camera]
   )
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -46,7 +51,6 @@ function GalleryContent({ film }: { film: FilmCategory }) {
 
   return (
     <div className={styles.page}>
-      {/* Sticky header — full-width bg, content max-width inside */}
       <div className={styles.pageHeader}>
         <div className={styles.headerInner} style={cssVars}>
           <div className={styles.headerLeft}>

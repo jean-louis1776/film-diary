@@ -13,6 +13,7 @@
 }
 
 .card {
+  height: 100%;
   border: 1px solid var(--accent-faint);
   border-radius: 2px;
   padding: 28px 24px;
@@ -26,7 +27,7 @@
   background: var(--card-bg);
 
   // Override in light theme via :global on html[data-theme]
-  html[data-theme='light'] & {
+  html[data-theme="light"] & {
     background: color-mix(in srgb, var(--accent) 22%, #f5ede0);
     border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   }
