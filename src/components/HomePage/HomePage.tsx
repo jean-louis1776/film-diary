@@ -1,5 +1,5 @@
 import avatarUrl from '@/assets/me.jpg'
-import { FILM_CATEGORIES, getPhotosForFilm } from '@/data/films.ts'
+import { FILM_CATEGORIES } from '@/data/films.ts'
 import type { Theme } from '@/hooks/useTheme.ts'
 
 import { FilmCard } from '../FilmCard'
@@ -10,7 +10,7 @@ const STATS = [
   { label: 'ROLLS', value: FILM_CATEGORIES.length },
   {
     label: 'FRAMES',
-    value: FILM_CATEGORIES.reduce((sum, film) => sum + getPhotosForFilm(film.id).length, 0),
+    value: FILM_CATEGORIES.reduce((sum, film) => sum + film.frameCount, 0),
   },
   { label: 'CAMERA', value: 'Minolta Hi-Matic AF2' },
 ] as const

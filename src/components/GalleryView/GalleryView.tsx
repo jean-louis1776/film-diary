@@ -27,7 +27,10 @@ export function GalleryView() {
 function GalleryContent({ film }: { film: FilmCategory }) {
   const navigate = useNavigate()
 
-  const photos = useMemo(() => getPhotosForFilm(film.id), [film.id])
+  const photos = useMemo(
+    () => getPhotosForFilm(film.id, film.frameCount),
+    [film.id, film.frameCount]
+  )
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
@@ -59,7 +62,7 @@ function GalleryContent({ film }: { film: FilmCategory }) {
             <div>
               <h1 className={styles.title}>{film.name}</h1>
               <p className={styles.meta}>
-                {film.iso} · {film.count} FRAMES
+                {film.iso} · {film.frameCount} FRAMES
               </p>
             </div>
           </div>

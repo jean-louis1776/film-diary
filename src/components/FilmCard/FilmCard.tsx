@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { getPhotosForFilm } from '@/data/films.ts'
 import type { FilmCategory } from '@/types'
 
 import styles from './FilmCard.module.scss'
@@ -23,8 +22,6 @@ export function FilmCard({ film, index }: FilmCardProps) {
     '--animation-delay': `${index * 80}ms`,
   } as React.CSSProperties
 
-  const count = getPhotosForFilm(film.id).length
-
   return (
     // Link renders a native <a> — correct semantics + right-click / open in new tab works
     <Link to={`/film/${film.id}`} className={styles.link} aria-label={`Open ${film.name} gallery`}>
@@ -45,7 +42,7 @@ export function FilmCard({ film, index }: FilmCardProps) {
 
         <footer className={styles.footer}>
           <div className={styles.frameCount}>
-            <span className={styles.frameNumber}>{String(count).padStart(2, '0')}</span>
+            <span className={styles.frameNumber}>{String(film.frameCount).padStart(2, '0')}</span>
             <span className={styles.frameLabel}>FRAMES</span>
           </div>
 

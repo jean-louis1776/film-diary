@@ -1,5 +1,7 @@
 import type { FilmCategory, Photo } from '@/types'
 
+const CDN = 'https://ik.imagekit.io/ilalex'
+
 export const FILM_CATEGORIES: FilmCategory[] = [
   {
     id: 'kodak-ultramax-400',
@@ -9,6 +11,7 @@ export const FILM_CATEGORIES: FilmCategory[] = [
     accent: '#E8A23A',
     bg: '#15100A',
     tag: 'COLOR · DAYLIGHT · ISO 400',
+    frameCount: 4,
   },
   {
     id: 'orwo-wolfen-nc400',
@@ -18,6 +21,7 @@ export const FILM_CATEGORIES: FilmCategory[] = [
     accent: '#6BAF7C',
     bg: '#080F0A',
     tag: 'COLOR · COOL TONES · ISO 400',
+    frameCount: 6,
   },
   {
     id: 'ilford-hp5-plus',
@@ -27,6 +31,7 @@ export const FILM_CATEGORIES: FilmCategory[] = [
     accent: '#C8C4BC',
     bg: '#0C0C0C',
     tag: 'B&W · CLASSIC · ISO 400',
+    frameCount: 7,
   },
   {
     id: 'ilford-kentmere-400',
@@ -36,6 +41,7 @@ export const FILM_CATEGORIES: FilmCategory[] = [
     accent: '#A09890',
     bg: '#0A0A0A',
     tag: 'B&W · GRITTY · ISO 400',
+    frameCount: 5,
   },
   {
     id: 'lomography-cn400',
@@ -45,29 +51,24 @@ export const FILM_CATEGORIES: FilmCategory[] = [
     accent: '#C4607A',
     bg: '#120810',
     tag: 'COLOR · VINTAGE · ISO 400',
+    frameCount: 8,
   },
 ]
 
-const allPhotos = import.meta.glob<{ default: string }>(
-  '../assets/rolls/**/*.{jpg,jpeg,png,webp}',
-  { eager: true }
-)
+export function getPhotosForFilm(filmId: string, frameCount: number): Photo[] {
+  return Array.from({ length: frameCount }, (_, i) => {
+    const frame = String(i + 1)
 
-export function getPhotosForFilm(filmId: string): Photo[] {
-  return Object.entries(allPhotos)
-    .filter(([path]) => path.includes(`/rolls/${filmId}/`))
-    .map(([path, module], i) => {
-      const filename = path.split('/').pop() ?? ''
-      const frame = filename.replace(/\.[^.]+$/, '') // '01.jpg' → '01'
-      return {
-        id: `${filmId}-${i}`,
-        url: module.default,
-        thumb: module.default,
-        width: 800,
-        height: 600,
-        frame: frame,
-        keyword: filmId,
-      }
-    })
-    .sort((a, b) => a.frame.localeCompare(b.frame))
+    const url = `${CDN}/rolls/${filmId}/${frame}.jpg`
+
+    return {
+      id: `${filmId}-${frame}`,
+      url,
+      thumb: url,
+      width: 800,
+      height: 600,
+      frame,
+      keyword: filmId,
+    }
+  })
 }

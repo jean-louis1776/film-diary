@@ -6,7 +6,7 @@ export interface FilmCategory {
   accent: string
   bg: string
   tag: string
-  count?: number
+  frameCount: number
 }
 
 export interface Photo {
