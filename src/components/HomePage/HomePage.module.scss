@@ -269,7 +269,7 @@
 
   span {
     @include mono(9px, 0.25em);
-    color: var(--color-text-faint);
+    color: var(--color-text);
   }
 
   @include mobile {
