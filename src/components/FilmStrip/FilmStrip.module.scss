@@ -11,7 +11,7 @@
   position: relative;
   width: 20px;
   height: 14px;
-  border: 1px solid; // color set via inline style (dynamic accent)
+  border: 1px solid;
   border-radius: 1px;
 }
 
@@ -21,7 +21,6 @@
   height: 3px;
   border-radius: 0.5px;
 
-  // Sprocket positions via data attribute
   &[data-pos='tl'] { top: -4px;    left:  2px; }
   &[data-pos='tr'] { top: -4px;    right: 2px; }
   &[data-pos='bl'] { bottom: -4px; left:  2px; }

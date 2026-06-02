@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type CSSProperties, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import type { FilmCategory } from '@/types'
@@ -20,10 +20,9 @@ export function FilmCard({ film, index }: FilmCardProps) {
     '--accent-glow': `${film.accent}12`,
     '--card-bg': film.bg,
     '--animation-delay': `${index * 80}ms`,
-  } as React.CSSProperties
+  } as CSSProperties
 
   return (
-    // Link renders a native <a> — correct semantics + right-click / open in new tab works
     <Link to={`/film/${film.id}`} className={styles.link} aria-label={`Open ${film.name} gallery`}>
       <article
         className={styles.card}

@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { type CSSProperties, useState } from 'react'
 
-import { useIntersectionObserver } from '../../hooks/useIntersectionObserver'
-import type { Photo } from '../../types'
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver.ts'
+import type { Photo } from '@/types'
+
 import { SkeletonCard } from '../SkeletonCard'
 
 import styles from './PhotoCard.module.scss'
@@ -42,7 +43,7 @@ export function PhotoCard({ photo, index, accent, onClick }: PhotoCardProps) {
         style={
           {
             '--accent': accent,
-          } as React.CSSProperties
+          } as CSSProperties
         }
       />
 

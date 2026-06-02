@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { type CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { FILM_CATEGORIES, getPhotosForFilm } from '@/data/films.ts'
@@ -42,7 +42,7 @@ function GalleryContent({ film }: { film: FilmCategory }) {
     setLightboxIndex((i) => (i !== null ? (i - 1 + photos.length) % photos.length : 0))
   }, [photos.length])
 
-  const cssVars = { '--accent': film.accent } as React.CSSProperties
+  const cssVars = { '--accent': film.accent } as CSSProperties
 
   return (
     <div className={styles.page}>

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { type CSSProperties, type MouseEvent, useEffect, useState } from 'react'
 
-import { useKeyboard } from '../../hooks/useKeyboard'
-import type { Photo } from '../../types'
+import { useKeyboard } from '@/hooks/useKeyboard.ts'
+import type { Photo } from '@/types'
 
 import styles from './Lightbox.module.scss'
 
@@ -19,14 +19,12 @@ export function Lightbox({ photos, currentIndex, accent, onClose, onNext, onPrev
   const photo = photos[currentIndex]
   const imgLoaded = loadedPhotoUrl === photo.url
 
-  // Keyboard navigation
   useKeyboard({
     ArrowRight: onNext,
     ArrowLeft: onPrev,
     Escape: onClose,
   })
 
-  // Prevent body scroll while open
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => {
@@ -34,8 +32,8 @@ export function Lightbox({ photos, currentIndex, accent, onClose, onNext, onPrev
     }
   }, [])
 
-  const cssVars = { '--accent': accent } as React.CSSProperties
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const cssVars = { '--accent': accent } as CSSProperties
+  const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
       onClose()
     }

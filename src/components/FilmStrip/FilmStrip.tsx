@@ -25,7 +25,6 @@ export function FilmStrip({ accent, frames = 8 }: FilmStripProps) {
     <div className={styles.strip} aria-hidden="true">
       {FRAME_IDS.slice(0, frames).map((frameId) => (
         <div key={frameId} className={styles.frame} style={{ borderColor: accent }}>
-          {/* sprocket holes — top-left, top-right, bottom-left, bottom-right */}
           <span className={styles.hole} data-pos="tl" style={{ background: accent }} />
           <span className={styles.hole} data-pos="tr" style={{ background: accent }} />
           <span className={styles.hole} data-pos="bl" style={{ background: accent }} />
