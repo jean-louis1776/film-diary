@@ -80,6 +80,10 @@
     0 2px 8px rgba(0, 0, 0, 0.3);
   animation: dropIn 0.18s $ease-spring;
 
+  @include mobile {
+    right: auto;
+  }
+
   @keyframes dropIn {
     from { opacity: 0; transform: translateY(-6px) scale(0.97); }
     to   { opacity: 1; transform: translateY(0)   scale(1);     }
