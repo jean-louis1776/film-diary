@@ -77,7 +77,7 @@ export function HomePage({ theme, onToggleTheme }: HomePageProps) {
               </div>
               <div className={styles.stat}>
                 <span className={styles.statValue}>{CAMERAS.length}</span>
-                <span className={styles.statLabel}>CAMERAS</span>
+                <span className={styles.statLabel}>TOTAL CAMERAS</span>
               </div>
             </div>
           </div>
@@ -89,7 +89,7 @@ export function HomePage({ theme, onToggleTheme }: HomePageProps) {
       </header>
 
       <div className={styles.sectionLabel}>
-        <span>SELECT ROLL ──────</span>
+        <span>─── SELECT ROLL & CAMERA ───</span>
         <CameraSelector cameras={CAMERAS} selected={selectedCamera} onChange={setSelectedCamera} />
       </div>
 

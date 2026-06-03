@@ -1,4 +1,4 @@
-import { type CSSProperties, useRef, useState } from 'react'
+import { type CSSProperties, type FocusEvent, useRef, useState } from 'react'
 
 import type { Camera } from '@/types'
 
@@ -17,7 +17,7 @@ export function CameraSelector({ cameras, selected, onChange }: CameraSelectorPr
   const selectedCamera = cameras.find((c) => c.id === selected)
   const label = selectedCamera ? selectedCamera.name : 'ALL CAMERAS'
 
-  const handleBlur = (e: React.FocusEvent) => {
+  const handleBlur = (e: FocusEvent) => {
     if (!ref.current?.contains(e.relatedTarget as Node)) {
       setOpen(false)
     }
