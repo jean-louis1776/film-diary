@@ -35,16 +35,16 @@
 
   &::before {
     top: -80px;
-    right: -40px;
-    width: 500px;
+    right: 0;
+    width: min(500px, 80vw);
     height: 500px;
     background: radial-gradient(circle, var(--hero-glow-a), transparent 65%);
   }
 
   &::after {
     left: 15%;
-    bottom: -150px;
-    width: 320px;
+    bottom: -100px;
+    width: min(320px, 70vw);
     height: 320px;
     background: radial-gradient(circle, var(--hero-glow-b), transparent 70%);
   }
