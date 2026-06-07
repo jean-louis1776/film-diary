@@ -4,21 +4,13 @@ import avatarUrl from '@/assets/me.jpg'
 import { CameraSelector } from '@/components/CameraSelector'
 import { CAMERAS } from '@/data/films.ts'
 import { useFilmCategories } from '@/hooks/useFilmCategories'
-import type { Theme } from '@/hooks/useTheme.ts'
 import { useAppStore } from '@/store/useAppStore'
 
 import { FilmCard } from '../FilmCard'
 
 import styles from './HomePage.module.scss'
 
-interface HomePageProps {
-  theme: Theme
-  onToggleTheme: () => void
-}
-
-export function HomePage({ theme, onToggleTheme }: HomePageProps) {
-  const nextTheme = theme === 'dark' ? 'light' : 'dark'
-
+export function HomePage() {
   const { films } = useFilmCategories()
   const selectedCamera = useAppStore((s) => s.selectedCamera)
   const setSelectedCamera = useAppStore((s) => s.setSelectedCamera)
@@ -42,16 +34,6 @@ export function HomePage({ theme, onToggleTheme }: HomePageProps) {
       <header className={styles.hero}>
         <div className={styles.heroTop}>
           <p className={styles.eyebrow}>FILM DIARY / 35MM / ILALEX</p>
-          <button
-            type="button"
-            className={styles.themeToggle}
-            onClick={onToggleTheme}
-            aria-label={`Switch to ${nextTheme} theme`}
-            aria-pressed={theme === 'light'}
-          >
-            <span className={styles.toggleIcon} aria-hidden="true" />
-            <span className={styles.toggleLabel}>{theme === 'dark' ? 'LIGHT' : 'DARK'}</span>
-          </button>
         </div>
 
         <div className={styles.identity}>

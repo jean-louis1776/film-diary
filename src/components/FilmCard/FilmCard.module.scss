@@ -21,16 +21,7 @@
   position: relative;
   overflow: hidden;
   outline: none;
-
-  // ── Background: dark mode keeps film-specific dark bg
-  //    light mode uses warm cream tinted with accent
   background: var(--card-bg);
-
-  // Override in light theme via :global on html[data-theme]
-  html[data-theme="light"] & {
-    background: color-mix(in srgb, var(--accent) 22%, #f5ede0);
-    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  }
 
   animation: slideUp 0.5s ease both;
   animation-delay: var(--animation-delay);
@@ -71,10 +62,6 @@
   pointer-events: none;
   opacity: 0.6;
   transition: opacity 0.35s ease;
-
-  html[data-theme='light'] & {
-    opacity: 0.9;
-  }
 }
 
 .tag {
@@ -83,10 +70,6 @@
   color: var(--accent);
   opacity: 0.85;
   margin-bottom: 14px;
-
-  html[data-theme='light'] & {
-    opacity: 1;
-  }
 }
 
 .name {
@@ -94,10 +77,6 @@
   color: var(--color-text);
   margin: 0 0 6px;
   line-height: 1.2;
-
-  html[data-theme='light'] & {
-    color: color-mix(in srgb, var(--accent) 40%, #1c1108);
-  }
 }
 
 .description {
@@ -105,10 +84,6 @@
   color: var(--color-text-muted);
   margin: 0 0 22px;
   line-height: 1.55;
-
-  html[data-theme='light'] & {
-    color: color-mix(in srgb, var(--accent) 20%, rgba(28, 17, 8, 0.8));
-  }
 }
 
 .footer {
@@ -117,10 +92,6 @@
   justify-content: space-between;
   border-top: 1px solid color-mix(in srgb, var(--accent) 14%, transparent);
   padding-top: 18px;
-
-  html[data-theme='light'] & {
-    border-top-color: color-mix(in srgb, var(--accent) 22%, transparent);
-  }
 }
 
 .frameCount {
@@ -148,8 +119,4 @@
   display: flex;
   align-items: center;
   gap: 6px;
-
-  html[data-theme='light'] & {
-    color: color-mix(in srgb, var(--accent) 30%, rgba(28, 17, 8, 0.5));
-  }
 }
