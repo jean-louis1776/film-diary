@@ -15,9 +15,9 @@ interface LightboxProps {
 }
 
 export function Lightbox({ photos, currentIndex, accent, onClose, onNext, onPrev }: LightboxProps) {
-  const [loadedPhotoUrl, setLoadedPhotoUrl] = useState<string | null>(null)
+  const [displayedUrl, setDisplayedUrl] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
   const photo = photos[currentIndex]
-  const imgLoaded = loadedPhotoUrl === photo.url
 
   useKeyboard({
     ArrowRight: onNext,
@@ -32,11 +32,23 @@ export function Lightbox({ photos, currentIndex, accent, onClose, onNext, onPrev
     }
   }, [])
 
+  useEffect(() => {
+    setLoading(true)
+    const img = new Image()
+    img.onload = () => {
+      setDisplayedUrl(photo.url)
+      setLoading(false)
+    }
+    img.onerror = () => {
+      setDisplayedUrl(photo.url)
+      setLoading(false)
+    }
+    img.src = photo.url
+  }, [photo.url])
+
   const cssVars = { '--accent': accent } as CSSProperties
   const handleBackdropClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      onClose()
-    }
+    if (event.target === event.currentTarget) onClose()
   }
 
   return (
@@ -49,7 +61,6 @@ export function Lightbox({ photos, currentIndex, accent, onClose, onNext, onPrev
       aria-label="Photo viewer"
       tabIndex={-1}
     >
-      {/* Close button */}
       <button
         type="button"
         className={styles.close}
@@ -61,20 +72,22 @@ export function Lightbox({ photos, currentIndex, accent, onClose, onNext, onPrev
       </button>
 
       <div className={styles.inner}>
-        {/* Image area */}
         <div className={styles.imageWrap}>
-          {!imgLoaded && <div className={styles.skeleton} />}
-          <img
-            key={photo.url}
-            src={photo.url}
-            alt={`Frame ${photo.frame}`}
-            className={styles.image}
-            style={{ display: imgLoaded ? 'block' : 'none' }}
-            onLoad={() => setLoadedPhotoUrl(photo.url)}
-          />
+          {displayedUrl === null ? (
+            <div className={styles.skeleton} />
+          ) : (
+            <>
+              <img
+                key={displayedUrl}
+                src={displayedUrl}
+                alt={`Frame ${photo.frame}`}
+                className={styles.image}
+              />
+              {loading && <div className={styles.loadingBar} style={cssVars} />}
+            </>
+          )}
         </div>
 
-        {/* Controls bar */}
         <div className={styles.controls} style={cssVars}>
           <button
             type="button"
