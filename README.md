@@ -1,142 +1,98 @@
-# Analogue Archive — Film Diary
+# Film Diary — monorepo
 
-A minimal, atmospheric digital diary for film photographers.  
-Built with React 18 + TypeScript + Vite + SCSS Modules.
+Analogue photography diary: public site + content admin + read-only API.
 
----
+```
+film-diary/
+├─ apps/
+│  ├─ web/      React + Vite SPA (Vercel) — the public site
+│  ├─ api/      Fastify + TypeScript — public read-only JSON API
+│  └─ admin/    Laravel + Filament 4 — content & storage admin panel
+├─ docker/      Dockerfiles / init scripts
+└─ docker-compose.yml
+```
 
-## Quick start
+**Data flow:** the Filament admin is the source of truth. It stores cameras /
+film rolls / photos in PostgreSQL and manages the image files in a Backblaze
+B2 bucket (served through the ImageKit CDN). On every content change it also
+publishes `rolls/catalog.json` + `rolls/manifest.json` to the bucket. The
+Node API reads the same database through a `SELECT`-only role and serves JSON
+to the site. The site falls back to the CDN catalog/manifest and then to a
+static list if the API is unreachable, so it keeps working as a static page.
+
+## Quick start (dev)
+
+Requirements: Docker Desktop, Node 20+, Yarn 1.
 
 ```bash
-npm install
-npm run dev
+# 1. Environment (fill in strong random values, e.g. `openssl rand -hex 16`)
+cp .env.example .env
+cp apps/admin/.env.example apps/admin/.env
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+
+# 2. Infrastructure + apps
+docker compose up -d --build
+
+# 3. Admin app one-time setup
+docker compose exec admin php artisan key:generate
+docker compose exec admin php artisan migrate --seed
+
+# 4. Create your admin account (interactive — no default credentials exist)
+docker compose exec admin php artisan app:make-admin
+
+# 5. Front-end
+yarn install
+yarn dev:web
 ```
 
----
+| Service | URL |
+|---|---|
+| Site (dev) | http://localhost:3000 |
+| Admin panel | http://localhost:8080/admin |
+| Public API | http://localhost:3001/api/films |
 
-## Dependencies
+The admin talks straight to the real Backblaze B2 bucket (`AWS_*` values in
+`apps/admin/.env`) — uploads, renames and deletes affect production files.
 
-### Runtime (`dependencies`)
+## Security model
 
-| Package | Why |
-|---------|-----|
-| `react` `react-dom` | UI framework |
-| `react-router-dom` | Client-side URL routing (v6) |
+- **Secrets** never enter git: every app has a committed `.env.example`, real
+  `.env` files are gitignored.
+- **Admin panel:** TOTP multi-factor auth (Filament v4, with recovery codes),
+  argon2id password hashing, login rate limiting, encrypted sessions,
+  security headers (`X-Frame-Options: DENY`, nosniff, `frame-ancestors
+  'none'`, HSTS over TLS), `APP_DEBUG=false` outside local, forced HTTPS in
+  production. Admin users are created only via interactive
+  `php artisan app:make-admin`.
+- **API:** connects as the `api_reader` PostgreSQL role (SELECT-only,
+  created by `docker/postgres/init/01-api-reader.sh`) — it physically cannot
+  write. CORS allowlist, helmet headers, 120 req/min rate limit, errors
+  without stack traces.
+- **Network:** PostgreSQL lives on an internal-only Docker network and is
+  never published to the host. All published ports bind to `127.0.0.1`.
+- **Containers:** API runs as `node`, admin image defines an unprivileged
+  `app` user (dev compose overrides to root only because Windows bind mounts
+  are root-owned; production images bake sources in and stay non-root).
 
-No external UI libraries — all components are hand-built.
+## Storage layout
 
-### Dev / build (`devDependencies`)
+Object keys follow `rolls/{camera}/{film}/{frame}.jpg` — the same layout the
+CDN already serves, so pre-existing files keep working. The admin computes
+keys automatically: uploads get the next frame number, changing a frame
+number renames the object in the bucket, deleting a photo deletes the object.
 
-| Package | Why |
-|---------|-----|
-| `vite` | Build tool & dev server (HMR) |
-| `@vitejs/plugin-react` | Fast Refresh for React |
-| `typescript` | Static typing |
-| `sass` | Dart Sass — Vite подхватывает `.scss` автоматически |
-| `@types/react` `@types/react-dom` | React TypeScript types |
-| `eslint` + plugins | Linting (optional) |
+## Production notes
 
-> `react-router-dom` v6 поставляется со встроенными TypeScript-типами —  
-> отдельный `@types/react-router-dom` не нужен.
-
----
-
-## Роутинг
-
-| URL | Компонент |
-|-----|-----------|
-| `/` | `HomePage` |
-| `/film/:filmId` | `GalleryView` |
-| `*` | редирект на `/` |
-
-`filmId` в URL совпадает с полем `id` в `FILM_CATEGORIES` (например `kodak-gold`).  
-`GalleryView` читает его через `useParams<{ filmId: string }>()`,  
-ищет плёнку в массиве и делает `navigate('/', { replace: true })` если не нашёл.
-
-Кнопка «← BACK» в шапке галереи вызывает `navigate('/')` — работает  
-и как обычная ссылка, и как браузерная кнопка «назад».
-
-**Деплой на статический хостинг** — нужно настроить fallback на `index.html`  
-для всех путей (Netlify: `_redirects`, Vercel: `vercel.json`, Nginx: `try_files`).
-
-## Project structure
-
-```
-src/
-├── types/
-│   └── index.ts               # FilmCategory, Photo interfaces
-│
-├── data/
-│   └── films.ts               # FILM_CATEGORIES array + generateMockPhotos()
-│
-├── hooks/
-│   ├── useIntersectionObserver.ts  # Lazy-load trigger for images
-│   └── useKeyboard.ts              # Keyboard shortcuts (lightbox arrows / Esc)
-│
-├── styles/
-│   ├── _variables.scss        # Fonts, colors, spacing, breakpoints, mixins, keyframes
-│   └── global.scss            # CSS reset + base body styles
-│
-├── components/
-│   ├── SkeletonCard/          # Shimmer placeholder while images load
-│   ├── FilmStrip/             # Decorative 35mm sprocket-hole strip
-│   ├── PhotoCard/             # Single photo tile with hover lift effect
-│   ├── Lightbox/              # Full-screen viewer with arrow navigation
-│   ├── FilmCard/              # Film roll category card (homepage)
-│   ├── GalleryView/           # Gallery page: header + photo grid + lightbox
-│   └── HomePage/              # Landing page: hero + stats + film grid
-│
-├── App.tsx                    # Root — toggles between HomePage and GalleryView
-└── main.tsx                   # ReactDOM.createRoot entry point
-```
-
-Each component folder follows the pattern:
-```
-ComponentName/
-├── ComponentName.tsx          # Component logic
-├── ComponentName.module.scss  # Scoped styles (SCSS modules)
-└── index.ts                   # Barrel export
-```
-
----
-
-## SCSS architecture
-
-All shared tokens live in `src/styles/_variables.scss` and are imported  
-at the top of every module via `@use '../../styles/variables' as *;`.
-
-Available mixins:
-
-```scss
-@include mono($size, $spacing)    // DM Mono + letter-spacing
-@include display($size)           // Playfair Display
-@include italic-body($size)       // Cormorant Garamond italic
-@include shimmer-bg               // Animated loading gradient
-@include mobile                   // max-width: 600px media query
-@include tablet                   // max-width: 960px media query
-```
-
-Dynamic per-component colors (accent, card background) are passed  
-as CSS custom properties via inline `style` props and consumed in SCSS  
-with `var(--accent)` etc. This avoids string interpolation in SCSS  
-while keeping full TypeScript type safety on the component API.
-
----
-
-## Replacing mock photos
-
-`generateMockPhotos()` in `src/data/films.ts` builds placeholder URLs  
-from `picsum.photos`. To use real photos, replace it with your own  
-data source — the `Photo` interface is the only contract:
-
-```ts
-interface Photo {
-  id:      string;
-  url:     string;   // full-size (lightbox)
-  thumb:   string;   // thumbnail (grid)
-  width:   number;
-  height:  number;
-  frame:   string;   // e.g. "01"
-  keyword: string;   // optional tag
-}
-```
+- **Backblaze B2:** create an application key scoped to a single bucket
+  (read/write). In `apps/admin/.env` set the `AWS_*` values as described in
+  `apps/admin/.env.example`. The S3 client is already configured with
+  `request_checksum_calculation = when_required` — without it, modern AWS
+  SDKs send CRC checksums that B2's S3 API rejects.
+- **CDN:** point `CDN_URL` (admin), `CDN_URL` (api) and `VITE_CDN_URL` (web)
+  at the public base URL images are served from (e.g.
+  `https://ik.imagekit.io/ilalex` with the B2 bucket as origin).
+- **Vercel:** set the project's *Root Directory* to `apps/web` (monorepo
+  layout). Set `VITE_API_URL` / `VITE_CDN_URL` in Vercel env settings.
+- **Admin/API hosting:** any VPS with Docker. Behind TLS set
+  `APP_ENV=production`, `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`.

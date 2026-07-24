@@ -1,0 +1,78 @@
+name: film-diary
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-film_diary}
+      POSTGRES_USER: ${POSTGRES_USER:-film_diary}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      API_READER_PASSWORD: ${API_READER_PASSWORD:?set API_READER_PASSWORD in .env}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  admin:
+    build:
+      # Dockerfile copies no sources — app code is bind-mounted below
+      context: ./docker/admin
+    restart: unless-stopped
+    # Dev only: Windows bind mounts are root-owned, so the non-root user from
+    # the image cannot write storage/. In production sources are baked into
+    # the image and the container runs as the unprivileged "app" user.
+    user: "0:0"
+    env_file:
+      - ./apps/admin/.env
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./apps/admin:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+      - edge
+    # Overrides the base image healthcheck (it probes the unused Caddy admin API)
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/up"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+
+  api:
+    build:
+      context: ./apps/api
+    restart: unless-stopped
+    env_file:
+      - ./apps/api/.env
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+      - edge
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+networks:
+  # db is only reachable from here; never published to the host network
+  internal:
+    internal: true
+  edge:
+
+volumes:
+  db_data:

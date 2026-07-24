@@ -1,28 +1,14 @@
 {
-  "name": "film-diary",
+  "name": "film-diary-monorepo",
   "private": true,
-  "version": "0.1.0",
-  "type": "module",
+  "workspaces": [
+    "apps/web"
+  ],
   "scripts": {
-    "dev": "vite --port 3000 --host",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "biome check .",
-    "lint-fix": "biome check --write ."
-  },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^7.16.0",
-    "zustand": "^5.0.14"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.4.16",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react-oxc": "^0.4.3",
-    "sass": "^1.97.3",
-    "typescript": "~5.9.3",
-    "vite": "8.0.5"
+    "dev:web": "yarn workspace @film-diary/web dev",
+    "build:web": "yarn workspace @film-diary/web build",
+    "lint:web": "yarn workspace @film-diary/web lint",
+    "dev:api": "cd apps/api && yarn dev",
+    "build:api": "cd apps/api && yarn build"
   }
 }
