@@ -82,7 +82,9 @@ services:
     healthCheckPath: /healthz
     envVars:
       - key: DATABASE_URL
-        sync: false # postgres://api_reader:...@ep-xxx.neon.tech/film_diary?sslmode=require
+        # Neon connection string for the read-only api_reader role
+        # (see the Deploy section in README.md for the exact format)
+        sync: false
       - key: CDN_URL
         value: https://ik.imagekit.io/ilalex
       - key: CORS_ORIGINS
