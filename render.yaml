@@ -70,11 +70,9 @@ services:
         value: "false"
       - key: CDN_URL
         value: https://ik.imagekit.io/ilalex
-      # First-boot bootstrap only; DELETE both after the first login
-      - key: ADMIN_EMAIL
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
+      # The first admin has been created. To bootstrap another environment,
+      # temporarily add ADMIN_EMAIL and ADMIN_PASSWORD here: the entrypoint
+      # creates that user on boot and never overwrites an existing one.
 
   - type: web
     name: film-diary-api
