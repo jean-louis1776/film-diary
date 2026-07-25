@@ -31,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('')
             ->brandName('Film Diary')
             ->login()
+            // Hosts the MFA setup UI, plus name/email/password changes
+            ->profile()
             ->multiFactorAuthentication([
                 AppAuthentication::make()->recoverable(),
             ])
