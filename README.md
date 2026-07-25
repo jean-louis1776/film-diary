@@ -90,58 +90,29 @@ number renames the object in the bucket, deleting a photo deletes the object.
   `request_checksum_calculation = when_required` — without it, modern AWS
   SDKs send CRC checksums that B2's S3 API rejects.
 - **CDN:** point `CDN_URL` (admin), `CDN_URL` (api) and `VITE_CDN_URL` (web)
-  at the public base URL images are served from (e.g.
-  `https://ik.imagekit.io/ilalex` with the B2 bucket as origin).
+  at the public base URL images are served from — a CDN with the B2 bucket as
+  its origin.
 
-## Deploy
+## Deploying
 
-### Site → Vercel (free)
+The web app is a static Vite build (any static host); the admin and the API
+ship as Docker images (`apps/admin/Dockerfile`, `apps/api/Dockerfile`) and
+need a PostgreSQL database plus the S3 credentials above. The admin image
+caches config, runs migrations and starts serving on `$PORT`; set
+`APP_ENV=production`, `APP_DEBUG=false` and `SESSION_SECURE_COOKIE=true`
+behind TLS.
 
-1. Vercel project → *Settings → Build and Deployment* → **Root Directory:
-   `apps/web`** (required after the monorepo restructure).
-2. *Settings → Environment Variables*:
-   - `VITE_CDN_URL=https://ik.imagekit.io/ilalex`
-   - `VITE_API_URL=https://film-diary-api.onrender.com` (or leave unset to
-     run purely off the CDN catalog fallback)
-3. Framework preset Vite; build command/output are auto-detected.
+The API connects with a read-only database role — create it once against the
+production database:
 
-### Database → Neon (free)
+```sql
+CREATE ROLE api_reader LOGIN PASSWORD '<strong-password>';
+GRANT CONNECT ON DATABASE <database> TO api_reader;
+GRANT USAGE ON SCHEMA public TO api_reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO api_reader;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO api_reader;
+```
 
-1. Create a Neon project (region close to Render's), database `film_diary`.
-2. Run once in the Neon SQL editor to create the API's read-only role
-   (replace the password):
-
-   ```sql
-   CREATE ROLE api_reader LOGIN PASSWORD '<strong-password>';
-   GRANT CONNECT ON DATABASE film_diary TO api_reader;
-   GRANT USAGE ON SCHEMA public TO api_reader;
-   GRANT SELECT ON ALL TABLES IN SCHEMA public TO api_reader;
-   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO api_reader;
-   ```
-
-### Admin + API → Render (free, Docker)
-
-`render.yaml` in the repo root is a ready Blueprint: Render Dashboard →
-**New → Blueprint** → select this repo. Then fill the `sync: false` secrets
-in the dashboard:
-
-- **admin:** `APP_KEY` (generate: `docker compose exec admin php artisan
-  key:generate --show`), Neon `DB_*` values, B2 `AWS_*` keys, `APP_URL`
-  (the onrender.com URL), and one-time `ADMIN_EMAIL`/`ADMIN_PASSWORD` —
-  the first boot creates that admin, **delete both vars after first login**.
-- **api:** `DATABASE_URL` with the `api_reader` role:
-  `postgres://api_reader:<pwd>@<neon-host>/film_diary?sslmode=require`
-
-On boot the admin container caches config, runs migrations and starts
-serving; run the seeder once from a local machine pointed at Neon if you
-want the initial catalog imported.
-
-Free-tier caveat: services sleep after ~15 min idle; the first request waits
-30–60 s while they wake. The site shows its fullscreen loader during that
-time (and the CDN catalog keeps working regardless).
-
-### Alternative: any VPS with Docker
-
-Behind TLS set `APP_ENV=production`, `APP_DEBUG=false`,
-`SESSION_SECURE_COOKIE=true`. Production admin image: `apps/admin/Dockerfile`
-(sources baked in, non-root, auto-migrations on boot).
+Create the first admin account with `php artisan app:make-admin`, or — on
+hosts without an interactive shell — by setting `ADMIN_EMAIL` and
+`ADMIN_PASSWORD` for the first boot and removing them afterwards.
