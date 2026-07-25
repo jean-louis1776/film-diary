@@ -1,0 +1,91 @@
+# Render Blueprint: deploys the admin panel and the public API as free
+# Docker web services. The database lives on Neon (Render's free Postgres
+# expires after 30 days — don't use it).
+#
+# Setup: Render Dashboard → New → Blueprint → point at this repo.
+# Secrets are entered in the dashboard (sync: false values below).
+services:
+  - type: web
+    name: film-diary-admin
+    runtime: docker
+    rootDir: apps/admin
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_NAME
+        value: "Film Diary Admin"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false # base64:... — generate locally: docker compose exec admin php artisan key:generate --show
+      - key: APP_URL
+        sync: false # https://film-diary-admin.onrender.com (fill in after first deploy)
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        sync: false # Neon host, e.g. ep-xxx.eu-central-1.aws.neon.tech
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_ENCRYPT
+        value: "true"
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: HASH_DRIVER
+        value: argon2id
+      - key: FILESYSTEM_DISK
+        value: s3
+      - key: AWS_ACCESS_KEY_ID
+        sync: false # B2 keyID
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false # B2 applicationKey
+      - key: AWS_DEFAULT_REGION
+        value: eu-central-003
+      - key: AWS_BUCKET
+        value: films-diary-ilalex
+      - key: AWS_ENDPOINT
+        value: https://s3.eu-central-003.backblazeb2.com
+      - key: AWS_USE_PATH_STYLE_ENDPOINT
+        value: "false"
+      - key: CDN_URL
+        value: https://ik.imagekit.io/ilalex
+      # First-boot bootstrap only; DELETE both after the first login
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+
+  - type: web
+    name: film-diary-api
+    runtime: docker
+    rootDir: apps/api
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        # Neon connection string for the read-only api_reader role
+        # (see the Deploy section in README.md for the exact format)
+        sync: false
+      - key: CDN_URL
+        value: https://ik.imagekit.io/ilalex
+      - key: CORS_ORIGINS
+        value: "*"

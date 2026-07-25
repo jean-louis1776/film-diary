@@ -12,6 +12,29 @@ dist
 dist-ssr
 *.local
 
+# Environment files — real secrets never enter git
+.env
+.env.*
+!.env.example
+
+# Laravel (apps/admin)
+apps/admin/vendor/
+apps/admin/storage/*.key
+apps/admin/storage/app/private/*
+apps/admin/storage/app/public/*
+apps/admin/storage/framework/cache/data/*
+apps/admin/storage/framework/sessions/*
+apps/admin/storage/framework/views/*
+apps/admin/storage/logs/*
+apps/admin/bootstrap/cache/*.php
+apps/admin/public/build
+apps/admin/public/hot
+apps/admin/public/storage
+apps/admin/.phpunit.result.cache
+
+# Docker volumes / local data
+docker/data/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
