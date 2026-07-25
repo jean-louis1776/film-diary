@@ -8,7 +8,9 @@ services:
   - type: web
     name: film-diary-admin
     runtime: docker
-    rootDir: apps/admin
+    dockerfilePath: ./apps/admin/Dockerfile
+    dockerContext: ./apps/admin
+    region: frankfurt # same region as the Neon database
     plan: free
     healthCheckPath: /up
     envVars:
@@ -77,7 +79,9 @@ services:
   - type: web
     name: film-diary-api
     runtime: docker
-    rootDir: apps/api
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    region: frankfurt # same region as the Neon database
     plan: free
     healthCheckPath: /healthz
     envVars:

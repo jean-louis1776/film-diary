@@ -20,7 +20,11 @@ RUN install-php-extensions \
 
 RUN useradd --uid 1000 --create-home app \
     && mkdir -p /data/caddy /config/caddy \
-    && chown -R app:app /data /config
+    && chown -R app:app /data /config \
+    # The base image grants frankenphp cap_net_bind_service so it can bind
+    # :80/:443. We listen on :8080, and sandboxed runtimes (Render) refuse to
+    # exec a binary carrying file capabilities — strip it.
+    && setcap -r /usr/local/bin/frankenphp
 
 ENV XDG_CONFIG_HOME=/config \
     XDG_DATA_HOME=/data
