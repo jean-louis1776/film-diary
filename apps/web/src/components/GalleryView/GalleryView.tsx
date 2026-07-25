@@ -6,6 +6,7 @@ import { useFilmCategories } from '@/hooks/useFilmCategories'
 import type { FilmCategory } from '@/types'
 
 import { FilmStrip } from '../FilmStrip'
+import { FullscreenLoader } from '../FullscreenLoader'
 import { Lightbox } from '../Lightbox'
 import { PhotoCard } from '../PhotoCard'
 
@@ -17,7 +18,7 @@ export function GalleryView() {
   const { films, state } = useFilmCategories()
 
   // Wait for films to load before deciding to redirect
-  if (state === 'refreshing') return null
+  if (state === 'refreshing') return <FullscreenLoader visible />
 
   const film = films.find((f) => f.id === filmId && f.camera === cameraId)
 

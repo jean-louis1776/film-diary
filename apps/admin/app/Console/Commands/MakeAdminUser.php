@@ -12,25 +12,31 @@ use function Laravel\Prompts\text;
 
 /**
  * Creates (or resets the password of) an admin user for the Filament panel.
- * Interactive on purpose: no default credentials ever live in code or seeders.
+ * Interactive by default — no default credentials ever live in code or
+ * seeders. `--from-env` exists for platforms without an interactive shell
+ * (e.g. Render free tier): it bootstraps the first admin from
+ * ADMIN_EMAIL/ADMIN_PASSWORD env vars and never overwrites an existing user.
  */
 class MakeAdminUser extends Command
 {
     protected $signature = 'app:make-admin
-        {--email= : Email (asked interactively when omitted)}';
+        {--email= : Email (asked interactively when omitted)}
+        {--from-env : Create from ADMIN_EMAIL/ADMIN_PASSWORD env vars, skip if the user exists}';
 
     protected $description = 'Create a Filament admin user or reset an existing password';
 
     public function handle(): int
     {
+        if ($this->option('from-env')) {
+            return $this->createFromEnv();
+        }
+
         $email = $this->option('email') ?: text(
             label: 'Admin email',
             required: true,
         );
 
-        $validator = Validator::make(['email' => $email], ['email' => ['required', 'email']]);
-
-        if ($validator->fails()) {
+        if (! $this->validEmail($email)) {
             $this->error('Invalid email address.');
 
             return self::FAILURE;
@@ -57,5 +63,50 @@ class MakeAdminUser extends Command
             : "Password for {$email} updated.");
 
         return self::SUCCESS;
+    }
+
+    private function createFromEnv(): int
+    {
+        $email = env('ADMIN_EMAIL');
+        $passwordValue = env('ADMIN_PASSWORD');
+
+        if (! $email || ! $passwordValue) {
+            $this->error('ADMIN_EMAIL and ADMIN_PASSWORD env vars are required for --from-env.');
+
+            return self::FAILURE;
+        }
+
+        if (! $this->validEmail($email)) {
+            $this->error('ADMIN_EMAIL is not a valid email address.');
+
+            return self::FAILURE;
+        }
+
+        if (strlen($passwordValue) < 12) {
+            $this->error('ADMIN_PASSWORD must be at least 12 characters.');
+
+            return self::FAILURE;
+        }
+
+        if (User::where('email', $email)->exists()) {
+            $this->info("Admin {$email} already exists — nothing to do.");
+
+            return self::SUCCESS;
+        }
+
+        User::create([
+            'name' => strstr($email, '@', true) ?: 'admin',
+            'email' => $email,
+            'password' => Hash::make($passwordValue),
+        ]);
+
+        $this->info("Admin {$email} created from env.");
+
+        return self::SUCCESS;
+    }
+
+    private function validEmail(string $email): bool
+    {
+        return ! Validator::make(['email' => $email], ['email' => ['required', 'email']])->fails();
     }
 }

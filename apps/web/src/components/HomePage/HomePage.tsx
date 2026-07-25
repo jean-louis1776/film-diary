@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import avatarUrl from '@/assets/me.jpg'
 import { CameraSelector } from '@/components/CameraSelector'
+import { FullscreenLoader } from '@/components/FullscreenLoader'
 import { useCameras } from '@/hooks/useCameras'
 import { useFilmCategories } from '@/hooks/useFilmCategories'
 import { useAppStore } from '@/store/useAppStore'
@@ -11,7 +12,7 @@ import { FilmCard } from '../FilmCard'
 import styles from './HomePage.module.scss'
 
 export function HomePage() {
-  const { films } = useFilmCategories()
+  const { films, state } = useFilmCategories()
   const cameras = useCameras()
   const selectedCamera = useAppStore((s) => s.selectedCamera)
   const setSelectedCamera = useAppStore((s) => s.setSelectedCamera)
@@ -32,6 +33,7 @@ export function HomePage() {
 
   return (
     <div className={styles.page}>
+      <FullscreenLoader visible={state === 'refreshing'} />
       <header className={styles.hero}>
         <div className={styles.heroTop}>
           <p className={styles.eyebrow}>FILM DIARY / 35MM / ILALEX</p>
