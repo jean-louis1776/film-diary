@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push to the same branch cancels the previous, still-running check
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: web — lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn workspace @film-diary/web lint
+
+      # `build` runs tsc first, so this covers type checking too
+      - name: Build
+        run: yarn workspace @film-diary/web build
+
+  api:
+    name: api — typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+          cache-dependency-path: apps/api/yarn.lock
+
+      - name: Install dependencies
+        working-directory: apps/api
+        run: yarn install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: apps/api
+        run: yarn typecheck
+
+      - name: Build
+        working-directory: apps/api
+        run: yarn build
+
+  admin:
+    name: admin — lint, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, intl, zip, exif, gd
+          coverage: none
+
+      - name: Validate composer.json
+        working-directory: apps/admin
+        run: composer validate --strict
+
+      - name: Install dependencies
+        working-directory: apps/admin
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Check code style
+        working-directory: apps/admin
+        run: vendor/bin/pint --test
+
+      # phpunit.xml already forces SQLite in memory; .env only supplies APP_KEY,
+      # without which cookie encryption blows up
+      - name: Prepare environment
+        working-directory: apps/admin
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run tests
+        working-directory: apps/admin
+        run: php artisan test
+
+  images:
+    name: docker images build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build admin image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/admin
+          push: false
+          cache-from: type=gha,scope=admin
+          cache-to: type=gha,scope=admin,mode=max
+
+      - name: Build api image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/api
+          push: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max

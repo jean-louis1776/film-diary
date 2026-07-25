@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Camera;
 use App\Models\Film;
 use App\Models\Photo;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -53,6 +54,42 @@ class PhotoStorage
             'height' => $height,
             'is_published' => $published,
         ]);
+    }
+
+    /**
+     * Rebuilds every object key of a camera after its slug changed, moving the
+     * files in the bucket to match. S3 has no folder rename: each object is
+     * copied to the new key and the old one deleted, so this is O(photos).
+     *
+     * @return int number of objects moved
+     */
+    public static function reKeyCamera(Camera $camera): int
+    {
+        $disk = self::disk();
+        $moved = 0;
+
+        $photos = Photo::whereIn('film_slug', $camera->films()->pluck('slug'))->get();
+
+        foreach ($photos as $photo) {
+            $extension = strtolower(pathinfo($photo->object_key, PATHINFO_EXTENSION) ?: 'jpg');
+            $newKey = Photo::buildObjectKey($camera->slug, $photo->film_slug, $photo->frame, $extension);
+
+            if ($newKey === $photo->object_key) {
+                continue;
+            }
+
+            if ($disk->exists($photo->object_key)) {
+                if ($disk->exists($newKey)) {
+                    $disk->delete($newKey);
+                }
+                $disk->move($photo->object_key, $newKey);
+                $moved++;
+            }
+
+            $photo->update(['object_key' => $newKey]);
+        }
+
+        return $moved;
     }
 
     /** Rename the S3 object when a photo's frame number changes. */

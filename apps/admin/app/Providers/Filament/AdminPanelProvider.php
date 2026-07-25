@@ -27,7 +27,8 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            // This service serves nothing but the panel, so it owns the root
+            ->path('')
             ->brandName('Film Diary')
             ->login()
             ->multiFactorAuthentication([

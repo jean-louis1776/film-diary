@@ -171,21 +171,46 @@ function catalogFilmToCategory(film: CatalogFilm): FilmCategory {
   }
 }
 
+// The API is hosted on a free tier that sleeps when idle: a cold start takes
+// up to a minute, and requests hitting a half-awake instance can fail outright.
+// Live data is worth waiting for, so retry a few times before settling for the
+// CDN catalog. Tune here if the hosting changes.
+const API_ATTEMPTS = 3
+const API_TIMEOUT_MS = 30_000
+const API_RETRY_DELAY_MS = 2_000
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/** Fetches a non-empty array from the API, retrying while the backend wakes. */
+async function fetchFromApi<T>(path: string): Promise<T[] | null> {
+  if (!API) return null
+
+  for (let attempt = 1; attempt <= API_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(`${API}${path}`, {
+        signal: AbortSignal.timeout(API_TIMEOUT_MS),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) return data as T[]
+      }
+    } catch {
+      // network error or timeout — retry below
+    }
+
+    if (attempt < API_ATTEMPTS) await sleep(API_RETRY_DELAY_MS * attempt)
+  }
+
+  return null
+}
+
 // API-first: the admin panel is the source of truth. Falls back to the CDN
 // catalog, then the legacy manifest, then the static list, so the site works
 // even with the API down.
 export async function loadFilmCategories(): Promise<FilmCategory[]> {
-  if (API) {
-    try {
-      const res = await fetch(`${API}/api/films`)
-      if (res.ok) {
-        const films: FilmCategory[] = await res.json()
-        if (Array.isArray(films) && films.length > 0) return films
-      }
-    } catch {
-      // fall through to catalog/manifest/static
-    }
-  }
+  const films = await fetchFromApi<FilmCategory>('/api/films')
+  if (films) return films
 
   const catalog = await loadCatalog()
   if (catalog) return catalog.films.map(catalogFilmToCategory)
@@ -194,17 +219,8 @@ export async function loadFilmCategories(): Promise<FilmCategory[]> {
 }
 
 export async function loadCameras(): Promise<Camera[]> {
-  if (API) {
-    try {
-      const res = await fetch(`${API}/api/cameras`)
-      if (res.ok) {
-        const cameras: Camera[] = await res.json()
-        if (Array.isArray(cameras) && cameras.length > 0) return cameras
-      }
-    } catch {
-      // fall through to catalog/static
-    }
-  }
+  const cameras = await fetchFromApi<Camera>('/api/cameras')
+  if (cameras) return cameras
 
   const catalog = await loadCatalog()
   if (catalog && Array.isArray(catalog.cameras) && catalog.cameras.length > 0) {

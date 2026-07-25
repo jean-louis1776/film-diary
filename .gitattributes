@@ -1,0 +1,13 @@
+# Normalise line endings: LF in the repository and in every working copy,
+# so linters behave the same on Windows, macOS, Linux and in CI.
+* text=auto eol=lf
+
+# Binary files must never be converted
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary

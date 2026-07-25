@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Photos\Pages;
 
 use App\Filament\Resources\Photos\PhotoResource;
+use App\Models\Photo;
 use App\Support\PhotoStorage;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -25,7 +26,7 @@ class EditPhoto extends EditRecord
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        /** @var \App\Models\Photo $record */
+        /** @var Photo $record */
         $disk = PhotoStorage::disk();
 
         $newFrame = (int) ($data['frame'] ?? $record->frame);

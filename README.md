@@ -49,7 +49,7 @@ yarn dev:web
 | Service | URL |
 |---|---|
 | Site (dev) | http://localhost:3000 |
-| Admin panel | http://localhost:8080/admin |
+| Admin panel | http://localhost:8080 |
 | Public API | http://localhost:3001/api/films |
 
 The admin talks straight to the real Backblaze B2 bucket (`AWS_*` values in

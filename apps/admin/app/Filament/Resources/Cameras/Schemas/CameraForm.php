@@ -12,12 +12,11 @@ class CameraForm
         return $schema
             ->components([
                 TextInput::make('slug')
-                    ->label('Slug (folder on CDN)')
-                    ->helperText('e.g. minolta-af2 — becomes part of the object key, cannot change later')
+                    ->label('Slug (folder in the bucket)')
+                    ->helperText('e.g. minolta-af2. Changing this moves every photo of this camera to the new folder; old CDN links stop working.')
                     ->required()
                     ->regex('/^[a-z0-9]+(?:-[a-z0-9]+)*$/')
-                    ->unique(ignoreRecord: true)
-                    ->disabledOn('edit'),
+                    ->unique(ignoreRecord: true),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
