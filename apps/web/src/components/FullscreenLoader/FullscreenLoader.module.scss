@@ -1,13 +1,5 @@
 @use '../../styles/variables' as *;
 
-@keyframes advance {
-  to { background-position-x: -26px; }
-}
-
-@keyframes frame-advance {
-  to { background-position-x: -78px; }
-}
-
 @keyframes dot-pulse {
   0%, 80%, 100% { opacity: 0.15; }
   40%           { opacity: 1; }
@@ -44,38 +36,6 @@
   @include mono(10px, 0.3em);
   color: var(--color-text);
   opacity: 0.45;
-}
-
-// ── Film strip ────────────────────────────────────────────────────────────────
-.filmstrip {
-  width: min(240px, 70vw);
-  border-block: 1px solid var(--color-border);
-  overflow: hidden;
-}
-
-.holes {
-  height: 10px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--color-border) 0 10px,
-    transparent 10px 26px
-  );
-  background-position-y: center;
-  animation: advance 0.9s linear infinite;
-}
-
-.holesTop    { margin-top: 5px; }
-.holesBottom { margin-bottom: 5px; }
-
-.frames {
-  height: 42px;
-  margin-block: 5px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--color-border-soft) 0 70px,
-    transparent 70px 78px
-  );
-  animation: frame-advance 2.7s linear infinite;
 }
 
 // ── Text ──────────────────────────────────────────────────────────────────────

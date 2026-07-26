@@ -1,0 +1,74 @@
+@use '../../styles/variables' as *;
+
+// ─── Film strip geometry ──────────────────────────────────────────────────────
+// One perforation pitch = one hole + one gap. A frame spans exactly three
+// pitches, so both rows travel whole pitches per cycle and stay locked to each
+// other; every loop lands on an identical position, so there is no seam.
+// Every measurement below is derived from --reel-scale, so callers resize the
+// whole mark with one number and the proportions hold.
+@keyframes advance {
+  to { background-position-x: calc(-1 * var(--pitch)); }
+}
+
+@keyframes frame-advance {
+  to { background-position-x: calc(-1 * var(--frame-pitch)); }
+}
+
+.strip {
+  --reel-scale: 1;
+  --reel-frames: 3;
+  --reel-color: var(--color-border);
+  --reel-frame-color: var(--color-border-soft);
+
+  --pitch:       calc(24px * var(--reel-scale));
+  --hole:        calc(10px * var(--reel-scale));
+  --frame-pitch: calc(var(--pitch) * 3);
+  --frame-gap:   calc(8px * var(--reel-scale));
+  --frame-width: calc(var(--frame-pitch) - var(--frame-gap));
+  --frame-h:     calc(42px * var(--reel-scale));
+  --row-gap:     calc(5px * var(--reel-scale));
+
+  // Window is a whole number of frames, so one leaving on the left is mirrored
+  // by an identical one entering on the right.
+  width: min(calc(var(--frame-pitch) * var(--reel-frames)), 70vw);
+  border-block: 1px solid var(--reel-color);
+  overflow: hidden;
+
+  // The strip is meant to run past both ends, so its edges fade out instead of
+  // letting a half-drawn perforation or frame pop in and out at the clip line.
+  // The ramp has to be a good chunk of a frame, otherwise the frame block is
+  // still bright while its width is visibly changing. Raise the 20% to swallow
+  // more of the edge, lower it for a harder-lit strip.
+  $edge-fade: linear-gradient(90deg, transparent 0, #000 20%, #000 80%, transparent 100%);
+  -webkit-mask-image: $edge-fade;
+  mask-image: $edge-fade;
+}
+
+.holes {
+  height: var(--hole);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--reel-color) 0 var(--hole),
+    transparent var(--hole) var(--pitch)
+  );
+}
+
+.holesTop    { margin-top: var(--row-gap); }
+.holesBottom { margin-bottom: var(--row-gap); }
+
+.frames {
+  height: var(--frame-h);
+  margin-block: var(--row-gap);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--reel-frame-color) 0 var(--frame-width),
+    transparent var(--frame-width) var(--frame-pitch)
+  );
+}
+
+// Only the loader variant runs; the still one reads as an unexposed strip.
+// One perforation pitch per 0.8s, so a frame takes exactly three of those.
+.running {
+  .holes  { animation: advance 0.8s linear infinite; }
+  .frames { animation: frame-advance 2.4s linear infinite; }
+}

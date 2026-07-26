@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import avatarUrl from '@/assets/me.jpg'
 import { CameraSelector } from '@/components/CameraSelector'
+import { FilmReel } from '@/components/FilmReel'
 import { FullscreenLoader } from '@/components/FullscreenLoader'
 import { useCameras } from '@/hooks/useCameras'
 import { useFilmCategories } from '@/hooks/useFilmCategories'
@@ -13,7 +14,7 @@ import styles from './HomePage.module.scss'
 
 export function HomePage() {
   const { films, state } = useFilmCategories()
-  const cameras = useCameras()
+  const { cameras, state: camerasState } = useCameras()
   const selectedCamera = useAppStore((s) => s.selectedCamera)
   const setSelectedCamera = useAppStore((s) => s.setSelectedCamera)
 
@@ -33,7 +34,8 @@ export function HomePage() {
 
   return (
     <div className={styles.page}>
-      <FullscreenLoader visible={state === 'refreshing'} />
+      {/* Both requests hit the same backend — hold the overlay until both answer */}
+      <FullscreenLoader visible={state === 'refreshing' || camerasState === 'refreshing'} />
       <header className={styles.hero}>
         <div className={styles.heroTop}>
           <p className={styles.eyebrow}>FILM DIARY / 35MM / ILALEX</p>
@@ -80,58 +82,8 @@ export function HomePage() {
 
       {showEmpty ? (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon} aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <title>Camera</title>
-              <rect
-                x="14"
-                y="8"
-                width="20"
-                height="32"
-                rx="3"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-              <rect
-                x="10"
-                y="14"
-                width="4"
-                height="6"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.3"
-              />
-              <rect
-                x="34"
-                y="14"
-                width="4"
-                height="6"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.3"
-              />
-              <rect
-                x="10"
-                y="28"
-                width="4"
-                height="6"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.3"
-              />
-              <rect
-                x="34"
-                y="28"
-                width="4"
-                height="6"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.3"
-              />
-              <circle cx="24" cy="24" r="4" stroke="currentColor" strokeWidth="1.3" />
-              <circle cx="24" cy="24" r="1.5" fill="currentColor" opacity="0.4" />
-            </svg>
-          </div>
+          {/* Still strip — same mark as the loader, just not running */}
+          <FilmReel className={styles.emptyReel} />
           <p className={styles.emptyTitle}>No rolls yet</p>
           <p className={styles.emptySubtitle}>
             Nothing shot on the{' '}

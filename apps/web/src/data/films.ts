@@ -172,37 +172,61 @@ function catalogFilmToCategory(film: CatalogFilm): FilmCategory {
 }
 
 // The API is hosted on a free tier that sleeps when idle: a cold start takes
-// up to a minute, and requests hitting a half-awake instance can fail outright.
-// Live data is worth waiting for, so retry a few times before settling for the
-// CDN catalog. Tune here if the hosting changes.
-const API_ATTEMPTS = 3
-const API_TIMEOUT_MS = 30_000
-const API_RETRY_DELAY_MS = 2_000
+// up to a minute, and requests hitting a half-awake instance fail outright.
+// The panel is the source of truth, so the front knocks every 15s for up to
+// three minutes (12 attempts) before settling for the CDN catalog — the
+// fullscreen loader stays up meanwhile. Each knock is aborted at 15s so the
+// cadence holds: a request left hanging on a booting instance is just re-fired.
+const API_TIMEOUT_MS = 15_000
+const API_RETRY_INTERVAL_MS = 15_000
+const API_WINDOW_MS = 180_000
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-/** Fetches a non-empty array from the API, retrying while the backend wakes. */
+/**
+ * Fetches an array from the API, knocking on a fixed 15s cadence while the
+ * backend is unreachable or still waking up. Stops the moment the backend
+ * answers at all — a JSON array (empty counts, "no rolls" is a valid answer),
+ * or a bodyless 204/304, which still proves it's awake; the rest of the app
+ * fetches on its own where it needs to. Returns `null` when there is nothing
+ * usable, so the caller falls back to the CDN catalog.
+ */
 async function fetchFromApi<T>(path: string): Promise<T[] | null> {
   if (!API) return null
 
-  for (let attempt = 1; attempt <= API_ATTEMPTS; attempt++) {
+  const deadline = Date.now() + API_WINDOW_MS
+
+  for (;;) {
+    const attemptStart = Date.now()
+
     try {
       const res = await fetch(`${API}${path}`, {
         signal: AbortSignal.timeout(API_TIMEOUT_MS),
       })
 
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data) && data.length > 0) return data as T[]
+      // 5xx and the "come back later" codes are what a half-awake instance
+      // returns — those are worth retrying. Anything else is a real answer.
+      const stillWaking = res.status >= 500 || res.status === 408 || res.status === 429
+
+      if (!stillWaking) {
+        // 204/304 carry no body, 4xx means a bad URL — awake either way, so
+        // stop knocking and let the CDN fallbacks supply the data
+        if (!res.ok || res.status === 204 || res.status === 304) return null
+
+        const data = await res.json().catch(() => null)
+        return Array.isArray(data) ? (data as T[]) : null
       }
     } catch {
-      // network error or timeout — retry below
+      // network error or timeout — the backend is probably still waking up
     }
 
-    if (attempt < API_ATTEMPTS) await sleep(API_RETRY_DELAY_MS * attempt)
-  }
+    // Next slot is 15s after the attempt started, so a request that burns its
+    // full timeout retries immediately instead of drifting off the cadence.
+    const nextAttempt = attemptStart + API_RETRY_INTERVAL_MS
+    if (nextAttempt >= deadline) return null
 
-  return null
+    await sleep(Math.max(0, nextAttempt - Date.now()))
+  }
 }
 
 // API-first: the admin panel is the source of truth. Falls back to the CDN
@@ -219,8 +243,10 @@ export async function loadFilmCategories(): Promise<FilmCategory[]> {
 }
 
 export async function loadCameras(): Promise<Camera[]> {
+  // Unlike films, an empty camera list is never a meaningful answer — it would
+  // leave the selector blank — so fall through to the catalog/static list.
   const cameras = await fetchFromApi<Camera>('/api/cameras')
-  if (cameras) return cameras
+  if (cameras && cameras.length > 0) return cameras
 
   const catalog = await loadCatalog()
   if (catalog && Array.isArray(catalog.cameras) && catalog.cameras.length > 0) {

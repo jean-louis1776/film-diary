@@ -5,7 +5,7 @@ import { getPhotosForFilm } from '@/data/films.ts'
 import { useFilmCategories } from '@/hooks/useFilmCategories'
 import type { FilmCategory } from '@/types'
 
-import { FilmStrip } from '../FilmStrip'
+import { FilmReel } from '../FilmReel'
 import { FullscreenLoader } from '../FullscreenLoader'
 import { Lightbox } from '../Lightbox'
 import { PhotoCard } from '../PhotoCard'
@@ -76,7 +76,8 @@ function GalleryContent({ film }: { film: FilmCategory }) {
               </p>
             </div>
           </div>
-          <FilmStrip accent={film.accent} />
+          {/* Same strip as the loader, at 1/1.5 scale and a couple frames longer */}
+          <FilmReel accent={film.accent} frames={5} scale={0.667} className={styles.headerReel} />
         </div>
       </div>
 
